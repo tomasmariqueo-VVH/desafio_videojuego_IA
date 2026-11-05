@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Tomás Mariqueo">
+    <!-- Tailwind CSS para la UI -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tone.js para los sonidos en 8-Bits -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <!-- Para los iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Videojuego IA</title>
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+
+<body class="no-scroll flex flex-col items-center justify-center min-h-screen text-white font-sans">
+
+    <!-- Caja del contenedor del juego -->
+    <div
+        class="relative w-full max-w-4xl h-full max-h-[650px] flex flex-col bg-slate-900 rounded-xl shadow-2xl overflow-hidden border border-slate-700">
+
+        <!-- Retro Header / Top HUD -->
+        <div
+            class="bg-black py-3 px-4 sm:px-8 flex justify-between items-center border-b-4 border-amber-500 font-pixel text-xs sm:text-sm text-yellow-400 z-10 shadow-md">
+            <div class="flex flex-col items-start">
+                <span class="text-white text-[10px] sm:text-xs">MARIO</span>
+                <span id="score-display">000000</span>
+            </div>
+            <div class="flex items-center gap-1 sm:gap-2">
+                <i class="fa-solid fa-coins text-yellow-400 text-sm sm:text-base animate-bounce"></i>
+                <span>x<span id="coins-display">00</span></span>
+            </div>
+            <div class="flex flex-col items-center">
+                <span class="text-white text-[10px] sm:text-xs">WORLD</span>
+                <span>1-1</span>
+            </div>
+            <div class="flex items-center gap-1 sm:gap-2">
+                <i class="fa-solid fa-heart text-red-500 text-sm sm:text-base"></i>
+                <span id="lives-display">x3</span>
+            </div>
+            <button id="sound-btn" class="text-slate-400 hover:text-white transition p-1" title="Toggle Sound">
+                <i id="sound-icon" class="fa-solid fa-volume-high"></i>
+            </button>
+        </div>
+
+        <!-- Canvas Game Screen Container -->
+        <div class="relative flex-1 w-full bg-[#5c94fc] overflow-hidden flex items-center justify-center">
+            <canvas id="gameCanvas" width="800" height="450" class="w-full h-full object-contain"></canvas>
+
+            <!-- Retro CRT Overlay -->
+            <div id="crt-layer" class="absolute inset-0 crt-overlay opacity-60 pointer-events-none"></div>
+
+            <!-- Start / Pause / Overlay Screens -->
+            <div id="start-screen"
+                class="absolute inset-0 bg-black/80 flex flex-col items-center justify-center gap-6 p-6 text-center z-20">
+                <h1
+                    class="font-pixel text-2xl sm:text-4xl text-yellow-400 drop-shadow-[0_4px_0_rgba(180,83,9,1)] tracking-wider">
+                    SUPER RETRO BROS
+                </h1>
+                <p class="text-slate-300 text-xs sm:text-sm max-w-md leading-relaxed font-sans">
+                    Use <span class="bg-slate-700 px-2 py-0.5 rounded text-amber-300">A / D</span> or <span
+                        class="bg-slate-700 px-2 py-0.5 rounded text-amber-300">Left / Right</span> arrows to Move.<br>
+                    Press <span class="bg-slate-700 px-2 py-0.5 rounded text-amber-300">SPACE</span> or <span
+                        class="bg-slate-700 px-2 py-0.5 rounded text-amber-300">W / Up</span> to Jump!
+                </p>
+                <button id="start-btn"
+                    class="font-pixel px-6 py-3 bg-red-600 hover:bg-red-500 text-white border-b-4 border-red-800 active:border-b-0 active:translate-y-1 rounded transition-all transform hover:scale-105 shadow-lg">
+                    PLAY GAME
+                </button>
+            </div>
+
+            <!-- Game Over Screen -->
+            <div id="game-over-screen"
+                class="hidden absolute inset-0 bg-black/90 flex flex-col items-center justify-center gap-6 p-6 text-center z-20">
+                <h2 class="font-pixel text-3xl sm:text-5xl text-red-600 tracking-widest animate-pulse">
+                    GAME OVER
+                </h2>
+                <p class="font-pixel text-sm text-yellow-400">FINAL SCORE: <span id="final-score-lose">0</span></p>
+                <button id="restart-btn-lose"
+                    class="font-pixel px-6 py-3 bg-amber-500 hover:bg-amber-400 text-slate-900 border-b-4 border-amber-700 active:border-b-0 active:translate-y-1 rounded transition-all shadow-lg">
+                    TRY AGAIN
+                </button>
+            </div>
+
+            <!-- Victory Screen -->
+            <div id="victory-screen"
+                class="hidden absolute inset-0 bg-black/85 flex flex-col items-center justify-center gap-6 p-6 text-center z-20">
+                <h2
+                    class="font-pixel text-2xl sm:text-4xl text-green-400 tracking-widest drop-shadow-[0_3px_0_rgba(22,101,52,1)]">
+                    COURSE CLEAR!
+                </h2>
+                <div class="font-pixel text-xs sm:text-sm text-slate-200 space-y-2">
+                    <p>CONGRATULATIONS!</p>
+                    <p class="text-yellow-400">SCORE: <span id="final-score-win">0</span></p>
+                    <p class="text-amber-300">COINS: <span id="final-coins-win">0</span></p>
+                </div>
+                <button id="restart-btn-win"
+                    class="font-pixel px-6 py-3 bg-green-600 hover:bg-green-500 text-white border-b-4 border-green-800 active:border-b-0 active:translate-y-1 rounded transition-all shadow-lg">
+                    PLAY AGAIN
+                </button>
+            </div>
+        </div>
+
+        <!-- Touch Controls for Mobile / Tablet -->
+        <div class="bg-slate-950 p-3 sm:hidden flex justify-between items-center border-t border-slate-800">
+            <!-- Left/Right Directional Buttons -->
+            <div class="flex gap-2">
+                <button id="btn-left"
+                    class="w-14 h-12 bg-slate-800 active:bg-slate-700 border-b-4 border-slate-950 text-white text-xl rounded flex items-center justify-center touch-none">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <button id="btn-right"
+                    class="w-14 h-12 bg-slate-800 active:bg-slate-700 border-b-4 border-slate-950 text-white text-xl rounded flex items-center justify-center touch-none">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+            <!-- Jump Button -->
+            <div>
+                <button id="btn-jump"
+                    class="w-20 h-12 bg-red-600 active:bg-red-500 border-b-4 border-red-900 text-white font-pixel text-xs rounded flex items-center justify-center touch-none">
+                    JUMP
+                </button>
+            </div>
+        </div>
+    </div>
+    <script src="static/js/script.js"></script>
+</body>
+
+</html>
