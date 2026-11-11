@@ -54,10 +54,15 @@
                 </div>
             </div>
 
-            <!-- Audio Mute Toggle -->
-            <button id="sound-btn" class="text-slate-400 hover:text-white transition p-1 ml-1" title="Toggle Sound">
-                <i id="sound-icon" class="fa-solid fa-volume-high"></i>
-            </button>
+            <!-- Utility Buttons: Mute Sound & ESC Title Reset -->
+            <div class="flex items-center gap-1 ml-1">
+                <button id="sound-btn" class="text-slate-400 hover:text-white transition p-1" title="Alternar Sonido">
+                    <i id="sound-icon" class="fa-solid fa-volume-high"></i>
+                </button>
+                <button id="esc-reset-btn" class="text-slate-400 hover:text-red-400 transition p-1 text-[9px] font-pixel border border-slate-700 hover:border-red-500 rounded px-1.5 py-0.5" title="Volver al Menú Principal (ESC)">
+                    ESC
+                </button>
+            </div>
         </div>
 
         <!-- Main Viewport Canvas -->
@@ -68,7 +73,7 @@
             <div id="crt-layer" class="absolute inset-0 crt-scanlines opacity-40 pointer-events-none"></div>
 
             <!-- Start & Mode Selection Modal Screen -->
-            <div id="start-screen" class="absolute inset-0 bg-black/90 flex flex-col items-center justify-center gap-4 p-4 text-center z-20">
+            <div id="start-screen" class="absolute inset-0 bg-black/95 flex flex-col items-center justify-center gap-4 p-4 text-center z-20">
                 <!-- Retro Logo -->
                 <div class="flex flex-col items-center select-none">
                     <span class="font-pixel text-yellow-400 text-xs tracking-widest mb-1">WORLD 1-1 RECREATION</span>
@@ -124,6 +129,7 @@
                             <p>• Run: <kbd class="bg-slate-800 px-1 py-0.5 rounded border border-slate-600 font-pixel text-[9px]">↓</kbd> or <kbd class="bg-slate-800 px-1 py-0.5 rounded border border-slate-600 font-pixel text-[9px]">N</kbd></p>
                         </div>
                     </div>
+                    <p class="text-center text-slate-400 text-[9px] pt-1">• Press <kbd class="bg-slate-800 px-1 text-amber-300 font-pixel">ESC</kbd> at any time to return to Menu</p>
                 </div>
 
                 <button id="start-btn" class="font-pixel px-6 py-2.5 bg-red-600 hover:bg-red-500 text-white border-b-4 border-red-900 active:border-b-0 active:translate-y-1 rounded-lg transition-all shadow-xl text-xs sm:text-sm">
@@ -131,8 +137,8 @@
                 </button>
             </div>
 
-            <!-- Game Over Screen -->
-            <div id="game-over-screen" class="hidden absolute inset-0 bg-black/90 flex flex-col items-center justify-center gap-6 p-6 text-center z-20">
+            <!-- Pure Black Solid Game Over Screen -->
+            <div id="game-over-screen" class="hidden absolute inset-0 bg-black flex flex-col items-center justify-center gap-6 p-6 text-center z-20">
                 <h2 class="font-pixel text-3xl sm:text-5xl text-red-600 tracking-widest animate-pulse">
                     GAME OVER
                 </h2>
@@ -140,14 +146,27 @@
                     <p>P1 SCORE: <span id="final-score-p1-lose">000000</span></p>
                     <p id="p2-final-score-lose-box" class="hidden text-green-400">P2 SCORE: <span id="final-score-p2-lose">000000</span></p>
                 </div>
-                <button id="restart-btn-lose" class="font-pixel px-6 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 border-b-4 border-amber-700 active:border-b-0 active:translate-y-1 rounded-lg transition-all shadow-lg text-xs">
-                    PLAY AGAIN
-                </button>
-                <p class="font-pixel text-[10px] text-slate-400">Press ENTER or R to Restart</p>
+                <div class="flex gap-3">
+                    <button id="restart-btn-lose" class="font-pixel px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 border-b-4 border-amber-700 active:border-b-0 active:translate-y-1 rounded-lg transition-all shadow-lg text-xs">
+                        PLAY AGAIN
+                    </button>
+                    <button id="menu-btn-lose" class="font-pixel px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white border-b-4 border-slate-950 active:border-b-0 active:translate-y-1 rounded-lg transition-all shadow-lg text-xs">
+                        MAIN MENU
+                    </button>
+                </div>
+                <p class="font-pixel text-[10px] text-slate-400">Press ENTER to Restart • ESC for Menu</p>
+            </div>
+
+            <!-- Interstitial Level Start / Respawn Life Counter Screen -->
+            <div id="respawn-screen" class="hidden absolute inset-0 bg-black flex flex-col items-center justify-center gap-4 text-center z-20 font-pixel">
+                <span class="text-white text-xs sm:text-sm tracking-widest mb-1">WORLD 1-1</span>
+                <div id="respawn-players-container" class="flex flex-col items-center gap-3 my-2">
+                    <!-- Player names & lives counts dynamically injected here -->
+                </div>
             </div>
 
             <!-- Stage Clear Victory Screen -->
-            <div id="victory-screen" class="hidden absolute inset-0 bg-black/90 flex flex-col items-center justify-center gap-6 p-6 text-center z-20">
+            <div id="victory-screen" class="hidden absolute inset-0 bg-black/95 flex flex-col items-center justify-center gap-6 p-6 text-center z-20">
                 <h2 class="font-pixel text-2xl sm:text-4xl text-green-400 tracking-widest drop-shadow-[0_4px_0_rgba(22,101,52,1)]">
                     STAGE CLEAR!
                 </h2>
@@ -156,10 +175,15 @@
                     <p id="p2-final-score-win-box" class="hidden text-green-400">P2 SCORE: <span id="final-score-p2-win">0</span></p>
                     <p class="text-cyan-300">TIME BONUS: <span id="final-time-win">0</span></p>
                 </div>
-                <button id="restart-btn-win" class="font-pixel px-6 py-3 bg-green-600 hover:bg-green-500 text-white border-b-4 border-green-800 active:border-b-0 active:translate-y-1 rounded-lg transition-all shadow-lg text-xs">
-                    PLAY AGAIN
-                </button>
-                <p class="font-pixel text-[10px] text-slate-400">Press ENTER or R to Restart</p>
+                <div class="flex gap-3">
+                    <button id="restart-btn-win" class="font-pixel px-5 py-2.5 bg-green-600 hover:bg-green-500 text-white border-b-4 border-green-800 active:border-b-0 active:translate-y-1 rounded-lg transition-all shadow-lg text-xs">
+                        PLAY AGAIN
+                    </button>
+                    <button id="menu-btn-win" class="font-pixel px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white border-b-4 border-slate-950 active:border-b-0 active:translate-y-1 rounded-lg transition-all shadow-lg text-xs">
+                        MAIN MENU
+                    </button>
+                </div>
+                <p class="font-pixel text-[10px] text-slate-400">Press ENTER to Restart • ESC for Menu</p>
             </div>
         </div>
 
